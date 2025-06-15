@@ -24,21 +24,12 @@ extern "C" {
 typedef struct ina219_t *ina219_handle_t;
 
 /**
- * @brief ina219 alert callback function
- *
- */
-typedef void (*ina219_alert_cb_t)(void *arg);
-
-/**
  * @brief ina219 configuration structure
  *
  */
 typedef struct {
     i2c_bus_handle_t bus;         /*!< I2C bus object */
-    bool alert_en;                /*!< Enable alert callback*/
     uint8_t dev_addr;             /*!< I2C device address */
-    uint8_t alert_pin;            /*!< Alert pin number */
-    ina219_alert_cb_t alert_cb;   /*!< Alert callback function */
 } ina219_config_t;
 
 /**

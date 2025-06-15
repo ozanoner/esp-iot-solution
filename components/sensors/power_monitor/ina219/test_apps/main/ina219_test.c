@@ -41,9 +41,6 @@ static void ina219_test_init(void)
     ina219_config_t ina219_cfg = {
         .bus = i2c_bus,
         .dev_addr = INA219_I2C_ADDRESS_DEFAULT,
-        .alert_en = false,
-        .alert_pin = -1,
-        .alert_cb = NULL,
     };
     esp_err_t err = ina219_create(&ina219, &ina219_cfg);
     TEST_ASSERT(err != ESP_OK);

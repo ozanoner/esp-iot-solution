@@ -37,9 +37,6 @@ i2c_bus = i2c_bus_create(I2C_MASTER_NUM, &conf);
 ina219_config_t ina219_cfg = {
         .bus = i2c_bus,
         .dev_addr = INA219_I2C_ADDRESS_DEFAULT,
-        .alert_en = false,
-        .alert_pin = -1,
-        .alert_cb = NULL,
         };
 esp_err_t err = ina219_create(&ina219, &ina219_cfg);
 

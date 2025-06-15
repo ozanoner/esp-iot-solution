@@ -15,12 +15,9 @@ static const char *TAG = "INA219";
 #define ESP_INTR_FLAG_DEFAULT 0
 
 typedef struct {
-    bool alert_en;
-    uint8_t alert_pin;
     uint8_t i2c_addr;
     i2c_bus_device_handle_t i2c_dev;
     ina219_reg_t reg;
-    ina219_alert_cb_t cb;
 } ina219_t;
 
 static esp_err_t ina219_read_reg(ina219_t *ina219, uint8_t reg, uint16_t *data)
@@ -71,9 +68,6 @@ esp_err_t ina219_create(ina219_handle_t *handle, ina219_config_t *config)
     ESP_RETURN_ON_FALSE(ina219, ESP_ERR_NO_MEM, TAG, "Failed to allocate memory for ina219");
 
     ina219->i2c_addr = config->dev_addr;
-    ina219->alert_pin = config->alert_pin;
-    ina219->alert_en = config->alert_en;
-    ina219->cb = config->alert_cb;
     ina219->i2c_dev = i2c_bus_device_create(config->bus, ina219->i2c_addr, i2c_bus_get_current_clk_speed(config->bus));
     if (ina219->i2c_dev == NULL) {
         free(ina219);
@@ -81,16 +75,7 @@ esp_err_t ina219_create(ina219_handle_t *handle, ina219_config_t *config)
     }
     ina219_reg_init(ina219);
     ina219_read_all_reg(ina219);
-    if (ina219->alert_en) {
-        gpio_config_t io_conf = {};
-        io_conf.intr_type = GPIO_INTR_NEGEDGE;
-        io_conf.mode = GPIO_MODE_INPUT;
-        io_conf.pin_bit_mask = (1ULL << ina219->alert_pin);
-        io_conf.pull_up_en = 1;
-        err = gpio_config(&io_conf);
-        gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-        gpio_isr_handler_add(ina219->alert_pin, ina219->cb, NULL);
-    }
+   
     *handle = (ina219_handle_t)ina219;
     return err;
 }
@@ -99,9 +84,6 @@ esp_err_t ina219_delete(ina219_handle_t handle)
 {
     ina219_t *ina219 = (ina219_t *)handle;
     i2c_bus_device_delete(&ina219->i2c_dev);
-    if (ina219->alert_en) {
-        gpio_isr_handler_remove(ina219->alert_pin);
-    }
     free(ina219);
     return ESP_OK;
 }
